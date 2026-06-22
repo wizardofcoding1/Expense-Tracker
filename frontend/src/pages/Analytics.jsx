@@ -435,10 +435,10 @@ const Analytics = () => {
         </div>
 
         {/* Tabbed Navigation Bar */}
-        <div className="flex bg-zinc-900 border border-zinc-800 p-1 rounded-xl self-start md:self-auto shadow-sm">
+        <div className="flex overflow-x-auto max-w-full [scrollbar-width:none] [&::-webkit-scrollbar]:hidden bg-zinc-900 border border-zinc-800 p-1 rounded-xl self-start md:self-auto shadow-sm whitespace-nowrap">
           <button 
             onClick={() => setActiveTab('overview')}
-            className={`px-3 py-1.5 rounded-lg text-xxs font-bold transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg text-xxs font-bold transition-all flex items-center gap-1.5 flex-shrink-0 whitespace-nowrap ${
               activeTab === 'overview' 
                 ? 'bg-primary text-white shadow-sm' 
                 : 'text-zinc-400 hover:text-zinc-200'
@@ -448,7 +448,7 @@ const Analytics = () => {
           </button>
           <button 
             onClick={() => setActiveTab('compare-months')}
-            className={`px-3 py-1.5 rounded-lg text-xxs font-bold transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg text-xxs font-bold transition-all flex items-center gap-1.5 flex-shrink-0 whitespace-nowrap ${
               activeTab === 'compare-months' 
                 ? 'bg-primary text-white shadow-sm' 
                 : 'text-zinc-400 hover:text-zinc-200'
@@ -458,7 +458,7 @@ const Analytics = () => {
           </button>
           <button 
             onClick={() => setActiveTab('compare-years')}
-            className={`px-3 py-1.5 rounded-lg text-xxs font-bold transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg text-xxs font-bold transition-all flex items-center gap-1.5 flex-shrink-0 whitespace-nowrap ${
               activeTab === 'compare-years' 
                 ? 'bg-primary text-white shadow-sm' 
                 : 'text-zinc-400 hover:text-zinc-200'
@@ -468,7 +468,7 @@ const Analytics = () => {
           </button>
           <button 
             onClick={() => setActiveTab('insights')}
-            className={`px-3 py-1.5 rounded-lg text-xxs font-bold transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg text-xxs font-bold transition-all flex items-center gap-1.5 flex-shrink-0 whitespace-nowrap ${
               activeTab === 'insights' 
                 ? 'bg-primary text-white shadow-sm' 
                 : 'text-zinc-400 hover:text-zinc-200'

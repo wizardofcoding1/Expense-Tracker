@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { X, AlertTriangle } from 'lucide-react';
 
 const DeleteConfirmModal = ({
@@ -12,7 +13,7 @@ const DeleteConfirmModal = ({
 }) => {
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in-50 duration-150">
       <div className="glass-panel p-6 rounded-3xl w-full max-w-sm animate-in fade-in-50 zoom-in-95 duration-200">
         <div className="flex justify-between items-center mb-4">
@@ -55,7 +56,8 @@ const DeleteConfirmModal = ({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

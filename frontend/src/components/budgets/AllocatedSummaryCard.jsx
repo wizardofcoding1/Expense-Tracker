@@ -7,7 +7,7 @@ const AllocatedSummaryCard = ({
   totalPct
 }) => {
   return (
-    <div className="lg:col-span-2 glass-panel p-5 rounded-2xl grid grid-cols-3 gap-4 items-center shadow-sm">
+    <div className="lg:col-span-2 glass-panel p-5 rounded-2xl grid grid-cols-1 sm:grid-cols-3 gap-4 items-center shadow-sm">
       <div className="space-y-1">
         <p className="text-xxs text-zinc-550 font-semibold uppercase tracking-wider">Total Allocated</p>
         <h3 className="text-xl font-bold text-zinc-200">₹{totalBudgetLimit.toFixed(2)}</h3>
@@ -23,7 +23,7 @@ const AllocatedSummaryCard = ({
         </h3>
       </div>
       {/* Visual Monthly Progress bar */}
-      <div className="col-span-3 space-y-1.5 mt-2">
+      <div className="col-span-1 sm:col-span-3 space-y-1.5 mt-2">
         <div className="flex justify-between text-xxs font-semibold text-zinc-400">
           <span>Overall Utilization</span>
           <span>{totalPct.toFixed(1)}%</span>
