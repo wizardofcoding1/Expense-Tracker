@@ -11,30 +11,69 @@ const LogExpenseTab = ({
   customSplits,
   setCustomSplits,
   members,
-  onSubmit
+  onSubmit,
+  expenseDate,
+  setExpenseDate,
+  paidBy,
+  setPaidBy
 }) => {
   return (
     <form onSubmit={onSubmit} className="max-w-md space-y-4 animate-fade-in">
-      <div>
-        <label className="block text-xxs font-bold text-zinc-500 uppercase tracking-wider mb-1.5">
-          Cost (₹)
-        </label>
-        <div className="relative">
-          <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-zinc-550">
-            ₹
-          </span>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-xxs font-bold text-zinc-500 uppercase tracking-wider mb-1.5">
+            Cost (₹)
+          </label>
+          <div className="relative">
+            <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-zinc-555">
+              ₹
+            </span>
+            <input
+              type="number"
+              step="0.01"
+              min="0.01"
+              placeholder="0.00"
+              value={expenseAmount}
+              onChange={(e) => setExpenseAmount(e.target.value)}
+              className="glass-input w-full pl-7 pr-4 py-2.5 rounded-xl text-sm text-zinc-200"
+              required
+              autoFocus
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-xxs font-bold text-zinc-500 uppercase tracking-wider mb-1.5">
+            Date
+          </label>
           <input
-            type="number"
-            step="0.01"
-            min="0.01"
-            placeholder="0.00"
-            value={expenseAmount}
-            onChange={(e) => setExpenseAmount(e.target.value)}
-            className="glass-input w-full pl-7 pr-4 py-2.5 rounded-xl text-sm text-zinc-200"
+            type="date"
+            value={expenseDate}
+            onChange={(e) => setExpenseDate(e.target.value)}
+            className="glass-input w-full px-4 py-2.5 rounded-xl text-sm text-zinc-200 [color-scheme:light]"
             required
-            autoFocus
+            max={new Date().toISOString().split('T')[0]}
           />
         </div>
+      </div>
+
+      <div>
+        <label className="block text-xxs font-bold text-zinc-500 uppercase tracking-wider mb-1.5">
+          Paid By
+        </label>
+        <select
+          value={paidBy}
+          onChange={(e) => setPaidBy(e.target.value)}
+          className="glass-input w-full px-4 py-2.5 rounded-xl text-sm text-zinc-200"
+          required
+        >
+          <option value="" disabled className="bg-obsidian-900 text-zinc-500">Select Payer</option>
+          {members.map(m => (
+            <option key={m.id} value={m.id} className="bg-obsidian-900 text-zinc-250">
+              {m.firstName} {m.lastName}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div>

@@ -20,6 +20,14 @@ import ActiveBudgetsCard from '../components/dashboard/ActiveBudgetsCard';
 import QuickAddModal from '../components/dashboard/QuickAddModal';
 import CustomSelect from '../components/CustomSelect';
 
+const getLocalTodayString = () => {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 const Dashboard = () => {
   const currentDate = new Date();
   const [month, setMonth] = useState(currentDate.getMonth() + 1); // 1-12
@@ -39,10 +47,11 @@ const Dashboard = () => {
     amount: '',
     category: 'Food',
     description: '',
-    date: new Date().toISOString().split('T')[0]
+    date: getLocalTodayString()
   });
   const [errorModal, setErrorModal] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   const incomeCategories = ['Salary', 'Freelance', 'Investments', 'Gifts', 'Other'];
   const expenseCategories = ['Food', 'Rent', 'Utilities', 'Shopping', 'Entertainment', 'Travel', 'Health', 'Other'];
@@ -53,7 +62,7 @@ const Dashboard = () => {
       amount: '',
       category: type === 'income' ? 'Salary' : 'Food',
       description: '',
-      date: new Date().toISOString().split('T')[0]
+      date: getLocalTodayString()
     });
     setErrorModal('');
     setShowAddModal(true);
@@ -68,7 +77,7 @@ const Dashboard = () => {
     }
     
     // Prevent future-dated logging
-    if (new Date(formData.date) > new Date()) {
+    if (formData.date > getLocalTodayString()) {
       setErrorModal('Transaction date cannot be in the future.');
       return;
     }
@@ -85,6 +94,7 @@ const Dashboard = () => {
       date: formData.date
     };
 
+    setSubmitting(true);
     try {
       const endpoint = formType === 'expense' ? '/expenses' : '/incomes';
       const res = await API.post(endpoint, payload);
@@ -97,6 +107,8 @@ const Dashboard = () => {
     } catch (err) {
       console.error(err);
       setErrorModal(err.response?.data?.message || 'Failed to save transaction.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -206,18 +218,22 @@ const Dashboard = () => {
           <p className="text-xs text-zinc-550">Quick glance at your wealth tracking and budgets</p>
         </div>
         <div className="flex flex-wrap gap-2">
+          {/* Quick Add Expense  */}
           <button 
             onClick={() => openAddModal('expense')} 
             className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-semibold bg-rose-500 hover:bg-rose-455 text-white transition-all shadow-md shadow-rose-950/20 active:scale-[0.98] cursor-pointer"
           >
             <TrendingDown size={14} /> Quick Add Expense
           </button>
+
+          {/* Quick Add Income */}
           <button 
             onClick={() => openAddModal('income')} 
             className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-semibold bg-emerald-500 hover:bg-emerald-455 text-white transition-all shadow-md shadow-emerald-950/20 active:scale-[0.98] cursor-pointer"
           >
             <TrendingUp size={14} /> Quick Add Income
           </button>
+          
         </div>
       </div>
 
@@ -374,6 +390,7 @@ const Dashboard = () => {
         errorModal={errorModal}
         incomeCategories={incomeCategories}
         expenseCategories={expenseCategories}
+        submitting={submitting}
       />
     </div>
   );

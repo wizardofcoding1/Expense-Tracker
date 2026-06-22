@@ -9,6 +9,7 @@ groupRouter.use(authMiddleware);
 
 groupRouter.post("/", groupController.createGroup);
 groupRouter.get("/", groupController.getGroups);
+groupRouter.delete("/:id", groupController.deleteGroup);
 groupRouter.post("/:id/members", groupController.addMember);
 groupRouter.post("/:id/expenses", groupController.logExpense);
 groupRouter.get("/:id/expenses", groupController.getExpenses);

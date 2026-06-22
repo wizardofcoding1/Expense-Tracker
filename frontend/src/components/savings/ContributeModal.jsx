@@ -7,7 +7,8 @@ const ContributeModal = ({
   contributionAmount,
   setContributionAmount,
   onClose,
-  onSubmit
+  onSubmit,
+  submitting
 }) => {
   if (!isOpen || !activeGoal) return null;
 
@@ -35,7 +36,7 @@ const ContributeModal = ({
               Deposit Amount (₹)
             </label>
             <div className="relative">
-              <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-zinc-550 text-xs">
+              <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-zinc-555 text-xs">
                 ₹
               </span>
               <input
@@ -54,9 +55,17 @@ const ContributeModal = ({
 
           <button
             type="submit"
-            className="w-full bg-emerald-500 hover:bg-emerald-455 text-white font-semibold py-2.5 px-4 rounded-xl transition-all duration-200 active:scale-[0.98] shadow-md shadow-emerald-950/20 text-xs cursor-pointer"
+            disabled={submitting}
+            className="w-full bg-emerald-500 hover:bg-emerald-455 text-white font-semibold py-2.5 px-4 rounded-xl transition-all duration-200 active:scale-[0.98] shadow-md shadow-emerald-950/20 text-xs cursor-pointer disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2"
           >
-            Record Contribution
+            {submitting ? (
+              <>
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                Depositing...
+              </>
+            ) : (
+              'Record Contribution'
+            )}
           </button>
         </form>
       </div>

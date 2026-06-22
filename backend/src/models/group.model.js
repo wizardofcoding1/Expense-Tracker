@@ -129,3 +129,48 @@ export async function getGroupNetBalances(groupId) {
       const result = await pool.query(query, [groupId]);
       return result.rows;
 }
+
+export async function deleteGroup(groupId, userId) {
+      const client = await pool.connect();
+      try {
+            await client.query("BEGIN");
+
+            // 1. Verify the user is the creator of the group
+            const checkQuery = "SELECT created_by FROM groups WHERE id = $1";
+            const checkRes = await client.query(checkQuery, [groupId]);
+            if (checkRes.rows.length === 0) {
+                  throw new Error("Group not found");
+            }
+            if (checkRes.rows[0].created_by !== userId) {
+                  throw new Error("Only the group creator can delete the group");
+            }
+
+            // 2. Delete splits first (where group_expense_id belongs to the group)
+            const deleteSplitsQuery = `
+                  DELETE FROM group_expense_splits
+                  WHERE group_expense_id IN (
+                        SELECT id FROM group_expenses WHERE group_id = $1
+                  );
+            `;
+            await client.query(deleteSplitsQuery, [groupId]);
+
+            // 3. Delete expenses
+            const deleteExpensesQuery = "DELETE FROM group_expenses WHERE group_id = $1";
+            await client.query(deleteExpensesQuery, [groupId]);
+
+            // 4. Delete members
+            const deleteMembersQuery = "DELETE FROM group_members WHERE group_id = $1";
+            await client.query(deleteMembersQuery, [groupId]);
+
+            // 5. Delete group
+            const deleteGroupQuery = "DELETE FROM groups WHERE id = $1";
+            await client.query(deleteGroupQuery, [groupId]);
+
+            await client.query("COMMIT");
+      } catch (error) {
+            await client.query("ROLLBACK");
+            throw error;
+      } finally {
+            client.release();
+      }
+}

@@ -7,7 +7,8 @@ const SavingsGoalModal = ({
   formData,
   setFormData,
   onClose,
-  onSubmit
+  onSubmit,
+  submitting
 }) => {
   if (!isOpen) return null;
 
@@ -28,7 +29,7 @@ const SavingsGoalModal = ({
 
         <form onSubmit={onSubmit} className="space-y-4">
           <div>
-            <label className="block text-xxs font-bold text-zinc-500 uppercase tracking-wider mb-1.5">
+            <label className="block text-xxs font-bold text-zinc-555 uppercase tracking-wider mb-1.5">
               Goal Title
             </label>
             <input
@@ -43,7 +44,7 @@ const SavingsGoalModal = ({
           </div>
 
           <div>
-            <label className="block text-xxs font-bold text-zinc-500 uppercase tracking-wider mb-1.5">
+            <label className="block text-xxs font-bold text-zinc-555 uppercase tracking-wider mb-1.5">
               Target Capital (₹)
             </label>
             <input
@@ -60,7 +61,7 @@ const SavingsGoalModal = ({
 
           {isEdit && (
             <div>
-              <label className="block text-xxs font-bold text-zinc-500 uppercase tracking-wider mb-1.5">
+              <label className="block text-xxs font-bold text-zinc-555 uppercase tracking-wider mb-1.5">
                 Accumulated Capital (₹)
               </label>
               <input
@@ -77,7 +78,7 @@ const SavingsGoalModal = ({
           )}
 
           <div>
-            <label className="block text-xxs font-bold text-zinc-500 uppercase tracking-wider mb-1.5">
+            <label className="block text-xxs font-bold text-zinc-555 uppercase tracking-wider mb-1.5">
               Target Deadline Date
             </label>
             <input
@@ -91,9 +92,17 @@ const SavingsGoalModal = ({
 
           <button
             type="submit"
-            className="w-full mt-4 bg-primary hover:bg-blue-500 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 active:scale-[0.98] shadow-md shadow-primary/20 cursor-pointer"
+            disabled={submitting}
+            className="w-full mt-4 bg-primary hover:bg-blue-500 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 active:scale-[0.98] shadow-md shadow-primary/20 cursor-pointer disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2"
           >
-            Save Savings Target
+            {submitting ? (
+              <>
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                Saving Goal...
+              </>
+            ) : (
+              'Save Savings Target'
+            )}
           </button>
         </form>
       </div>

@@ -38,9 +38,9 @@ export async function getGroups(req, res) {
 export async function addMember(req, res) {
       try {
             const { id: groupId } = req.params;
-            const { email } = req.body || {};
+            const { email, name } = req.body || {};
 
-            const member = await groupService.addMemberByEmail(groupId, email);
+            const member = await groupService.addMember(groupId, { email, name });
             return res.status(200).json({
                   success: true,
                   message: "Member added successfully",
@@ -58,11 +58,11 @@ export async function addMember(req, res) {
 export async function logExpense(req, res) {
       try {
             const { id: groupId } = req.params;
-            const { amount, description, splitType, splits, date } = req.body || {};
+            const { amount, description, splitType, splits, date, paidBy } = req.body || {};
 
             const expense = await groupService.logGroupExpense({
                   groupId,
-                  paidBy: req.userId,
+                  paidBy: paidBy || req.userId,
                   amount,
                   description,
                   splitType,
@@ -114,6 +114,24 @@ export async function getBalances(req, res) {
       } catch (error) {
             console.error("Get Group Balances Error Details:", error);
             return res.status(500).json({
+                  success: false,
+                  message: error.message
+            });
+      }
+}
+
+export async function deleteGroup(req, res) {
+      try {
+            const { id: groupId } = req.params;
+            await groupService.deleteGroup(groupId, req.userId);
+            
+            return res.status(200).json({
+                  success: true,
+                  message: "Group deleted successfully"
+            });
+      } catch (error) {
+            console.error("Delete Group Error Details:", error);
+            return res.status(400).json({
                   success: false,
                   message: error.message
             });

@@ -12,7 +12,8 @@ const QuickAddModal = ({
   onSubmit,
   errorModal,
   incomeCategories,
-  expenseCategories
+  expenseCategories,
+  submitting
 }) => {
   const [isOther, setIsOther] = React.useState(false);
 
@@ -145,9 +146,17 @@ const QuickAddModal = ({
 
           <button
             type="submit"
-            className="w-full mt-4 bg-primary hover:bg-blue-500 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 active:scale-[0.98] shadow-md shadow-primary/20 cursor-pointer"
+            disabled={submitting}
+            className="w-full mt-4 bg-primary hover:bg-blue-500 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 active:scale-[0.98] shadow-md shadow-primary/20 cursor-pointer disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2"
           >
-            Log Transaction
+            {submitting ? (
+              <>
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                Logging...
+              </>
+            ) : (
+              'Log Transaction'
+            )}
           </button>
         </form>
       </div>

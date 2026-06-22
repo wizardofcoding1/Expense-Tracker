@@ -59,6 +59,7 @@ The backend auto-initializes and interacts with the following relational databas
 - **`GET /sessions`**: List active login sessions/devices for the user.
 - **`DELETE /sessions/:id`**: Revoke a specific session, forcing that device to log out.
 - **`PUT /change-password`**: Update user password.
+- **`PUT /update-profile`**: Update user profile details (First Name, Last Name, Gender, Date of Birth).
 
 ### 2. Expenses (`/api/expenses`)
 - **`POST /`**: Log a new expense transaction.
@@ -87,10 +88,11 @@ The backend auto-initializes and interacts with the following relational databas
 ### 6. Group Bill Splits (`/api/groups`)
 - **`POST /`**: Create a new shared expense group.
 - **`GET /`**: Fetch list of user's active groups.
-- **`POST /:id/members`**: Add a member to a group by email.
+- **`POST /:id/members`**: Add a member to a group (supports registered email or guest name).
 - **`GET /:id/expenses`**: View list of group expenses and balances.
-- **`POST /:id/expenses`**: Log a group bill split between members.
+- **`POST /:id/expenses`**: Log a group bill split (accepts custom payer `paidBy` and transaction `date`).
 - **`POST /:id/settle`**: Settle outstanding group dues.
+- **`DELETE /:id`**: Delete a shared expense group (creator only, cascade deletes splits, expenses, and members).
 
 ### 7. Financial Analytics (`/api/analytics`)
 - **`GET /summary`**: Calculate monthly financial metrics (Total Income, Total Expense, Savings Rate).

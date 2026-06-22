@@ -11,12 +11,17 @@ import {
 import SavingsGoalCard from '../components/savings/SavingsGoalCard';
 import SavingsGoalModal from '../components/savings/SavingsGoalModal';
 import ContributeModal from '../components/savings/ContributeModal';
+import DeleteConfirmModal from '../components/DeleteConfirmModal';
 
 const Savings = () => {
   const [goals, setGoals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [goalToDelete, setGoalToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   // Modals States
   const [showAddModal, setShowAddModal] = useState(false);
@@ -93,6 +98,8 @@ const Savings = () => {
       return;
     }
 
+    setSubmitting(true);
+    setError('');
     try {
       if (showEditModal) {
         // Edit Goal
@@ -124,6 +131,8 @@ const Savings = () => {
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.message || 'Failed to save goal.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -134,6 +143,8 @@ const Savings = () => {
       return;
     }
 
+    setSubmitting(true);
+    setError('');
     try {
       const res = await API.put(`/savings-goals/${activeGoal.id}/contribute`, {
         amount: Number(contributionAmount)
@@ -146,20 +157,27 @@ const Savings = () => {
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.message || 'Failed to record contribution.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const handleDeleteGoal = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this savings goal?')) return;
+  const handleDeleteGoal = async () => {
+    if (!goalToDelete) return;
+    setDeleting(true);
     try {
-      const res = await API.delete(`/savings-goals/${id}`);
+      const res = await API.delete(`/savings-goals/${goalToDelete.id}`);
       if (res.data.success) {
         showNotification('Savings goal deleted successfully.');
+        setShowDeleteModal(false);
+        setGoalToDelete(null);
         fetchGoals();
       }
     } catch (err) {
       console.error(err);
       setError('Failed to delete goal.');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -178,7 +196,7 @@ const Savings = () => {
         </div>
         <button 
           onClick={openAddModal} 
-          className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-semibold bg-primary hover:bg-blue-550 text-white transition-all shadow-md shadow-primary/20 active:scale-[0.98] self-start sm:self-auto cursor-pointer"
+          className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-semibold bg-primary hover:bg-blue-555 text-white transition-all shadow-md shadow-primary/20 active:scale-[0.98] self-start sm:self-auto cursor-pointer"
         >
           <Plus size={14} /> Create Goal
         </button>
@@ -202,7 +220,7 @@ const Savings = () => {
       {loading ? (
         <div className="h-64 flex flex-col items-center justify-center gap-2">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-          <p className="text-zinc-550 text-xs">Accessing vault...</p>
+          <p className="text-zinc-555 text-xs">Accessing vault...</p>
         </div>
       ) : goals.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -211,7 +229,10 @@ const Savings = () => {
               key={goal.id}
               goal={goal}
               onEdit={openEditModal}
-              onDelete={handleDeleteGoal}
+              onDelete={() => {
+                setGoalToDelete(goal);
+                setShowDeleteModal(true);
+              }}
               onContribute={openContributeModal}
             />
           ))}
@@ -227,7 +248,7 @@ const Savings = () => {
           </div>
           <button 
             onClick={openAddModal} 
-            className="px-4 py-2.5 rounded-xl text-xs font-semibold bg-primary hover:bg-blue-550 text-white transition-all shadow-md shadow-primary/20 active:scale-[0.98] cursor-pointer"
+            className="px-4 py-2.5 rounded-xl text-xs font-semibold bg-primary hover:bg-blue-555 text-white transition-all shadow-md shadow-primary/20 active:scale-[0.98] cursor-pointer"
           >
             Create Your First Goal
           </button>
@@ -242,6 +263,7 @@ const Savings = () => {
         setFormData={setFormData}
         onClose={() => { setShowAddModal(false); setShowEditModal(false); }}
         onSubmit={handleSaveGoal}
+        submitting={submitting}
       />
 
       {/* Contribute Funds Modal */}
@@ -252,6 +274,17 @@ const Savings = () => {
         setContributionAmount={setContributionAmount}
         onClose={() => setShowContributeModal(false)}
         onSubmit={handleContribute}
+        submitting={submitting}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal 
+        isOpen={showDeleteModal}
+        onClose={() => { setShowDeleteModal(false); setGoalToDelete(null); }}
+        onConfirm={handleDeleteGoal}
+        title="Delete Savings Target"
+        message={`Are you sure you want to delete the savings goal "${goalToDelete?.name}"? This action cannot be undone.`}
+        deleting={deleting}
       />
     </div>
   );

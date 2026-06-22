@@ -137,12 +137,12 @@ const Login = () => {
           </form>
         </div>
 
-        <p className="text-center text-sm mt-6" style={{ color: '#8c6c3f' }}>
-          Don't have an account?{' '}
-          <Link to="/register" className="hover:underline font-bold transition-all" style={{ color: '#8c6c3f' }}>
+        <div className="mt-6 p-4 rounded-2xl gold-panel text-center text-sm">
+          <span style={{ color: '#8c6c3f' }}>Don't have an account? </span>
+          <Link to="/register" className="hover:underline font-extrabold transition-all" style={{ color: '#3d352b' }}>
             Create an account
           </Link>
-        </p>
+        </div>
       </div>
     </div>
   );

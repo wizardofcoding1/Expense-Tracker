@@ -8,7 +8,8 @@ const CreateGroupModal = ({
   newGroupName,
   setNewGroupName,
   newGroupDesc,
-  setNewGroupDesc
+  setNewGroupDesc,
+  submitting
 }) => {
   if (!isOpen) return null;
 
@@ -24,7 +25,7 @@ const CreateGroupModal = ({
 
         <form onSubmit={onSubmit} className="space-y-4">
           <div>
-            <label className="block text-xxs font-bold text-zinc-500 uppercase tracking-wider mb-1.5">
+            <label className="block text-xxs font-bold text-zinc-555 uppercase tracking-wider mb-1.5">
               Group Name
             </label>
             <input
@@ -39,7 +40,7 @@ const CreateGroupModal = ({
           </div>
 
           <div>
-            <label className="block text-xxs font-bold text-zinc-500 uppercase tracking-wider mb-1.5">
+            <label className="block text-xxs font-bold text-zinc-555 uppercase tracking-wider mb-1.5">
               Group Description
             </label>
             <input
@@ -53,9 +54,17 @@ const CreateGroupModal = ({
 
           <button
             type="submit"
-            className="w-full mt-4 bg-primary hover:bg-blue-500 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 active:scale-[0.98] shadow-md shadow-primary/20 cursor-pointer"
+            disabled={submitting}
+            className="w-full mt-4 bg-primary hover:bg-blue-500 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 active:scale-[0.98] shadow-md shadow-primary/20 cursor-pointer disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2"
           >
-            Create Group
+            {submitting ? (
+              <>
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                Creating...
+              </>
+            ) : (
+              'Create Group'
+            )}
           </button>
         </form>
       </div>

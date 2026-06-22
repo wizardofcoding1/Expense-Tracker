@@ -1,14 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { X } from 'lucide-react';
 
 const AddMemberModal = ({
   isOpen,
   onClose,
-  onSubmit,
-  newMemberEmail,
-  setNewMemberEmail
+  onSubmit
 }) => {
+  const [memberName, setMemberName] = useState('');
+
   if (!isOpen) return null;
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSubmit(e, {
+      type: 'name',
+      value: memberName
+    });
+    setMemberName('');
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in-50 duration-150">
@@ -20,16 +29,16 @@ const AddMemberModal = ({
           </button>
         </div>
 
-        <form onSubmit={onSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-xxs font-bold text-zinc-500 uppercase tracking-wider mb-1.5">
-              Member's Email Address
+              Member's Name
             </label>
             <input
-              type="email"
-              placeholder="friend@email.com"
-              value={newMemberEmail}
-              onChange={(e) => setNewMemberEmail(e.target.value)}
+              type="text"
+              placeholder="e.g. John Doe"
+              value={memberName}
+              onChange={(e) => setMemberName(e.target.value)}
               className="glass-input w-full px-4 py-2.5 rounded-xl text-sm text-zinc-200"
               required
               autoFocus

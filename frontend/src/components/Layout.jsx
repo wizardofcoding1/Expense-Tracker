@@ -31,13 +31,29 @@ const Layout = ({ children }) => {
     { name: 'Profile Settings', path: '/profile', icon: Settings },
   ];
 
+  const [loggingOut, setLoggingOut] = useState(false);
+
   const handleLogout = async () => {
-    await logout();
-    navigate('/login');
+    setLoggingOut(true);
+    try {
+      await logout();
+      navigate('/login');
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoggingOut(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-obsidian-950 text-zinc-100 flex flex-col md:flex-row">
+      {loggingOut && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex flex-col justify-center items-center gap-4 animate-in fade-in duration-200">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-[#b39262] border-t-transparent"></div>
+          <p className="text-sm font-semibold tracking-wider text-[#b39262]">Signing Out Safely...</p>
+        </div>
+      )}
+      
       {/* Mobile Header Bar */}
       <div className="md:hidden flex items-center justify-between p-4 bg-obsidian-900 border-b border-zinc-800">
         <div className="flex items-center gap-2">

@@ -15,6 +15,7 @@ import ExpensesLedgerTab from '../components/groups/ExpensesLedgerTab';
 import LogExpenseTab from '../components/groups/LogExpenseTab';
 import CreateGroupModal from '../components/groups/CreateGroupModal';
 import AddMemberModal from '../components/groups/AddMemberModal';
+import DeleteConfirmModal from '../components/DeleteConfirmModal';
 
 const Groups = () => {
   const { user } = useAuth();
@@ -47,6 +48,11 @@ const Groups = () => {
   const [expenseDesc, setExpenseDesc] = useState('');
   const [splitType, setSplitType] = useState('equal'); // equal, custom
   const [customSplits, setCustomSplits] = useState({}); // userId -> amount
+  const [expenseDate, setExpenseDate] = useState(new Date().toISOString().split('T')[0]);
+  const [paidBy, setPaidBy] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const fetchGroups = async (selectFirst = false) => {
     setLoading(true);
@@ -71,6 +77,8 @@ const Groups = () => {
     setDetailsLoading(true);
     setError('');
     setActiveTab('balances');
+    setPaidBy(user?.id || '');
+    setExpenseDate(new Date().toISOString().split('T')[0]);
     try {
       // 1. Fetch group members.
       const balancesRes = await API.get(`/groups/${group.id}/balances`);
@@ -121,6 +129,7 @@ const Groups = () => {
       return;
     }
 
+    setSubmitting(true);
     try {
       const res = await API.post('/groups', {
         name: newGroupName,
@@ -136,35 +145,57 @@ const Groups = () => {
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.message || 'Failed to create group.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const handleAddMember = async (e) => {
+  const handleAddMember = async (e, memberData) => {
     e.preventDefault();
-    if (!newMemberEmail.trim()) return;
+    const { value } = memberData;
+    if (!value.trim()) return;
 
-    // Check if the user is already a member
+    // Check if the user is already a member by name
     const alreadyMember = members.some(
-      m => m.email?.toLowerCase() === newMemberEmail.trim().toLowerCase()
+      m => `${m.firstName} ${m.lastName}`.trim().toLowerCase() === value.trim().toLowerCase()
     );
     if (alreadyMember) {
-      setError('User is already a member of this group.');
+      setError('Member is already in this group.');
       return;
     }
 
     try {
       const res = await API.post(`/groups/${selectedGroup.id}/members`, {
-        email: newMemberEmail
+        name: value.trim()
       });
       if (res.data.success) {
-        showNotification('Member added successfully.');
-        setNewMemberEmail('');
+        showNotification(`Member "${value.trim()}" added successfully.`);
         setShowAddMemberModal(false);
         handleSelectGroup(selectedGroup);
       }
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.message || 'Failed to add member. Make sure they are registered.');
+      setError(err.response?.data?.message || 'Failed to add member.');
+    }
+  };
+
+  const handleDeleteGroup = async () => {
+    if (!selectedGroup) return;
+
+    setDeleting(true);
+    try {
+      const res = await API.delete(`/groups/${selectedGroup.id}`);
+      if (res.data.success) {
+        showNotification('Group deleted successfully.');
+        setSelectedGroup(null);
+        setShowDeleteModal(false);
+        fetchGroups(true);
+      }
+    } catch (err) {
+      console.error(err);
+      setError(err.response?.data?.message || 'Failed to delete group.');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -186,7 +217,7 @@ const Groups = () => {
         const amt = Number(customSplits[userId] || 0);
         sumOfSplits += amt;
         return {
-          userId: Number(userId),
+          userId: userId,
           owedAmount: amt
         };
       });
@@ -202,7 +233,9 @@ const Groups = () => {
         amount: Number(expenseAmount),
         description: expenseDesc,
         splitType,
-        splits: splitType === 'custom' ? payloadSplits : undefined
+        splits: splitType === 'custom' ? payloadSplits : undefined,
+        date: expenseDate,
+        paidBy: paidBy
       };
 
       const res = await API.post(`/groups/${selectedGroup.id}/expenses`, payload);
@@ -211,6 +244,7 @@ const Groups = () => {
         setExpenseAmount('');
         setExpenseDesc('');
         setSplitType('equal');
+        setExpenseDate(new Date().toISOString().split('T')[0]);
         
         // Reset custom splits
         const resetSplits = {};
@@ -273,6 +307,8 @@ const Groups = () => {
               <GroupHeader 
                 selectedGroup={selectedGroup}
                 onAddMemberClick={() => setShowAddMemberModal(true)}
+                onDeleteGroupClick={() => setShowDeleteModal(true)}
+                deleting={deleting}
               />
 
               {/* Workspace Navigation tabs */}
@@ -351,6 +387,10 @@ const Groups = () => {
                       setCustomSplits={setCustomSplits}
                       members={members}
                       onSubmit={handleLogGroupExpense}
+                      expenseDate={expenseDate}
+                      setExpenseDate={setExpenseDate}
+                      paidBy={paidBy}
+                      setPaidBy={setPaidBy}
                     />
                   )}
                 </div>
@@ -379,6 +419,7 @@ const Groups = () => {
         setNewGroupName={setNewGroupName}
         newGroupDesc={newGroupDesc}
         setNewGroupDesc={setNewGroupDesc}
+        submitting={submitting}
       />
 
       {/* Add Member Modal */}
@@ -386,8 +427,15 @@ const Groups = () => {
         isOpen={showAddMemberModal}
         onClose={() => setShowAddMemberModal(false)}
         onSubmit={handleAddMember}
-        newMemberEmail={newMemberEmail}
-        setNewMemberEmail={setNewMemberEmail}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal 
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDeleteGroup}
+        groupName={selectedGroup?.name || ''}
+        deleting={deleting}
       />
     </div>
   );

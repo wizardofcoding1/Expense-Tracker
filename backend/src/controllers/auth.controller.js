@@ -315,11 +315,11 @@ export async function updateProfile(req, res) {
                   });
             }
 
-            // Validate date of birth is not in the future
+            // Validate date of birth is not in the future (with a 30-hour timezone buffer)
             if (dateOfBirth) {
                   const dobDate = new Date(dateOfBirth);
                   const today = new Date();
-                  today.setHours(23, 59, 59, 999);
+                  today.setHours(today.getHours() + 30);
                   if (dobDate > today) {
                         return res.status(400).json({
                               success: false,

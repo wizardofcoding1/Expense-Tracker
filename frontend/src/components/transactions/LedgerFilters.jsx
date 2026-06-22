@@ -104,10 +104,10 @@ const LedgerFilters = ({
       </div>
 
       {/* Row 2: Date Range, Amount Range, Tag filter */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-3 border-t border-zinc-800/40 items-center">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 pt-3 border-t border-zinc-800/40 items-center">
         {/* Date range selection */}
-        <div className="flex items-center gap-2">
-          <span className="text-xxs font-bold text-zinc-550 uppercase tracking-wider min-w-[70px]">Dates:</span>
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 lg:col-span-5">
+          <span className="text-xxs font-bold text-zinc-555 uppercase tracking-wider min-w-[70px]">Dates:</span>
           <input
             type="date"
             value={startDate}
@@ -115,7 +115,7 @@ const LedgerFilters = ({
             className="glass-input px-2.5 py-1.5 rounded-xl text-xs text-zinc-200 w-full [color-scheme:light]"
             placeholder="From"
           />
-          <span className="text-zinc-550 text-xs">to</span>
+          <span className="text-zinc-555 text-xs">to</span>
           <input
             type="date"
             value={endDate}
@@ -126,8 +126,8 @@ const LedgerFilters = ({
         </div>
 
         {/* Amount range selection */}
-        <div className="flex items-center gap-2">
-          <span className="text-xxs font-bold text-zinc-550 uppercase tracking-wider min-w-[70px]">Amounts:</span>
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 lg:col-span-5">
+          <span className="text-xxs font-bold text-zinc-555 uppercase tracking-wider min-w-[70px]">Amounts:</span>
           <input
             type="number"
             placeholder="Min ₹"
@@ -135,7 +135,7 @@ const LedgerFilters = ({
             onChange={(e) => setMinAmount(e.target.value)}
             className="glass-input px-2.5 py-1.5 rounded-xl text-xs text-zinc-200 w-full"
           />
-          <span className="text-zinc-550 text-xs">to</span>
+          <span className="text-zinc-555 text-xs">to</span>
           <input
             type="number"
             placeholder="Max ₹"
@@ -146,7 +146,7 @@ const LedgerFilters = ({
         </div>
 
         {/* Reset button */}
-        <div className="flex justify-end items-center h-full">
+        <div className="flex justify-end items-center h-full lg:col-span-2">
           {hasActiveFilters && (
             <button
               onClick={onReset}

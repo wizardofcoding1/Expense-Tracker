@@ -13,6 +13,7 @@ FinTrack Frontend is a premium, single-page client web application built with **
 - **Data Visualizations:** Recharts (Interactive Pie and Bar charts for spending distribution and historical trends)
 - **HTTP Client:** Axios (Configured client wrapper with automatic authorization interceptors)
 - **Icons:** Lucide React
+- **PWA & Service Worker Caching:** Powered by `vite-plugin-pwa` for offline boot loading, automatic background updates, and standalone home screen installation.
 
 ---
 
@@ -48,17 +49,22 @@ FinTrack Frontend is a premium, single-page client web application built with **
    - Add/record savings deposits/contributions towards individual goals.
 
 5. **Group Expenses (`/groups`)**
-   - Bill splitting module for shared group expense logging.
+   - Bill splitting module for shared group expense logging with custom payer dropdown (supporting virtual members) and date selector.
    - Real-time balances worksheet (calculating who owes whom how much).
    - Settle dues card to log payments between group members.
+   - Manage group members by adding registered users or virtual/guest members by name.
+   - Delete shared expense groups with cascading data cleanup and custom confirmation dialogs.
 
 6. **Financial Analytics (`/analytics`)**
    - Deep-dive charts detailing category trends, monthly trend comparisons, and savings rates.
 
 7. **Profile Settings (`/profile`)**
-   - User profile detail review cards.
-   - Password update forms.
-   - **Session Security Manager:** Lists all active login sessions/devices tracked by the database (Browser, OS, IP address, last active). Offers one-click buttons to revoke access, forcing logout on specific devices.
+   - Modular subcomponents located in `src/components/profile/`:
+     - `ProfileCard.jsx`: Displays user initial avatar, full name, and email details.
+     - `PersonalInfoForm.jsx`: Manages viewing/editing user personal profile data (First Name, Last Name, Gender select, and validated Date of Birth).
+     - `SecurityOverview.jsx`: Renders current security status and tips for the user.
+     - `PasswordForm.jsx`: Interactive password changer form with input visibility toggling.
+     - `ActiveSessionsList.jsx`: Displays active logged-in device sessions (IP addresses, OS, browsers, active state duration) and allows revoking access.
 
 ---
 
@@ -94,3 +100,16 @@ Launch the Vite client dev server:
 npm run dev
 ```
 By default, the application will launch at `http://localhost:5173`. Open this URL in your web browser.
+
+### 4. Build Production Bundle & Test PWA Caching
+To compile the production build and test the offline PWA capabilities:
+1. Build the project:
+   ```bash
+   npm run build
+   ```
+2. Start the local preview server:
+   ```bash
+   npm run preview
+   ```
+3. Open `http://localhost:4173` online once to let the browser register the Service Worker.
+4. Stop the terminal process, turn off your internet connection, and visit `http://localhost:4173` to verify offline boot capabilities.

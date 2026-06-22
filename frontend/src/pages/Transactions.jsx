@@ -12,6 +12,32 @@ import {
 import LedgerFilters from '../components/transactions/LedgerFilters';
 import TransactionsTable from '../components/transactions/TransactionsTable';
 import TransactionFormModal from '../components/transactions/TransactionFormModal';
+import DeleteConfirmModal from '../components/DeleteConfirmModal';
+
+const getLocalTodayString = () => {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const formatDateForInput = (dateVal) => {
+  if (!dateVal) return '';
+  try {
+    if (typeof dateVal === 'string') {
+      return dateVal.split('T')[0];
+    }
+    const d = new Date(dateVal);
+    if (isNaN(d.getTime())) return '';
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  } catch (e) {
+    return '';
+  }
+};
 
 const Transactions = () => {
   const [incomes, setIncomes] = useState([]);
@@ -21,6 +47,10 @@ const Transactions = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [transactionToDelete, setTransactionToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   // Search and Filter States
   const [search, setSearch] = useState('');
@@ -55,7 +85,7 @@ const Transactions = () => {
     amount: '',
     category: 'Food',
     description: '',
-    date: new Date().toISOString().split('T')[0]
+    date: getLocalTodayString()
   });
 
   const incomeCategories = ['Salary', 'Freelance', 'Investments', 'Gifts', 'Other'];
@@ -187,7 +217,7 @@ const Transactions = () => {
       amount: '',
       category: type === 'income' ? 'Salary' : 'Food',
       description: '',
-      date: new Date().toISOString().split('T')[0]
+      date: getLocalTodayString()
     });
     setShowAddModal(true);
   };
@@ -200,7 +230,7 @@ const Transactions = () => {
       amount: item.amount,
       category: item.category,
       description: item.description || '',
-      date: new Date(item.date).toISOString().split('T')[0]
+      date: formatDateForInput(item.date)
     });
     setShowEditModal(true);
   };
@@ -214,7 +244,7 @@ const Transactions = () => {
     }
 
     // Prevent logging future-dated entries
-    if (new Date(formData.date) > new Date()) {
+    if (formData.date > getLocalTodayString()) {
       setError('Transaction date cannot be in the future.');
       return;
     }
@@ -232,6 +262,7 @@ const Transactions = () => {
       date: formData.date
     };
 
+    setSubmitting(true);
     try {
       if (showEditModal) {
         // Edit Transaction
@@ -254,22 +285,30 @@ const Transactions = () => {
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.message || 'Failed to save transaction.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
   // Delete Transaction
-  const handleDeleteTransaction = async (id, type) => {
-    if (!window.confirm('Are you sure you want to delete this transaction?')) return;
+  const handleDeleteTransaction = async () => {
+    if (!transactionToDelete) return;
+    setDeleting(true);
     try {
+      const { id, type } = transactionToDelete;
       const endpoint = type === 'expense' ? `/expenses/${id}` : `/incomes/${id}`;
       const res = await API.delete(endpoint);
       if (res.data.success) {
         showNotification('Transaction deleted successfully.');
+        setShowDeleteModal(false);
+        setTransactionToDelete(null);
         fetchTransactions();
       }
     } catch (err) {
       console.error(err);
       setError('Failed to delete transaction.');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -361,7 +400,10 @@ const Transactions = () => {
         loading={loading}
         filtered={filtered}
         onEdit={openEditModal}
-        onDelete={handleDeleteTransaction}
+        onDelete={(id, type) => {
+          setTransactionToDelete({ id, type });
+          setShowDeleteModal(true);
+        }}
       />
 
       {/* Add / Edit Modal */}
@@ -375,8 +417,18 @@ const Transactions = () => {
         onSubmit={handleSaveTransaction}
         incomeCategories={incomeCategories}
         expenseCategories={expenseCategories}
+        submitting={submitting}
       />
 
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal 
+        isOpen={showDeleteModal}
+        onClose={() => { setShowDeleteModal(false); setTransactionToDelete(null); }}
+        onConfirm={handleDeleteTransaction}
+        title="Delete Transaction"
+        message={`Are you sure you want to delete this ${transactionToDelete?.type || 'transaction'}? This action cannot be undone.`}
+        deleting={deleting}
+      />
     </div>
   );
 };

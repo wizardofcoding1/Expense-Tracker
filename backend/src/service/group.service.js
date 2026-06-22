@@ -1,5 +1,6 @@
 import * as groupModel from "../models/group.model.js";
-import { getUserByEmail } from "../models/user.model.js";
+import { getUserByEmail, createUser } from "../models/user.model.js";
+import crypto from "crypto";
 
 export async function createGroup(name, description, creatorId) {
       if (!name || name.trim() === "") {
@@ -12,14 +13,27 @@ export async function getGroups(userId) {
       return await groupModel.getGroupsByUserId(userId);
 }
 
-export async function addMemberByEmail(groupId, email) {
-      if (!email || email.trim() === "") {
-            throw new Error("Email is required");
-      }
-
-      const user = await getUserByEmail(email.trim());
-      if (!user) {
-            throw new Error(`User with email "${email}" not found`);
+export async function addMember(groupId, { email, name }) {
+      let user;
+      if (email && email.trim() !== "") {
+            user = await getUserByEmail(email.trim());
+            if (!user) {
+                  throw new Error(`User with email "${email}" not found`);
+            }
+      } else if (name && name.trim() !== "") {
+            // Create a virtual user record in the database
+            const randomId = crypto.randomUUID();
+            const placeholderEmail = `virtual_${randomId}@expensetracker.internal`;
+            user = await createUser({
+                  firstName: name.trim(),
+                  lastName: "(Guest)",
+                  dateOfBirth: "2000-01-01",
+                  gender: "other",
+                  email: placeholderEmail,
+                  passwordHash: `virtual_user_placeholder_hash_${randomId}`
+            });
+      } else {
+            throw new Error("Either email or name is required");
       }
 
       // Check if user is already a member
@@ -160,4 +174,8 @@ export async function getGroupBalancesAndSettlements(groupId) {
             balances,
             settlements
       };
+}
+
+export async function deleteGroup(groupId, userId) {
+      return await groupModel.deleteGroup(groupId, userId);
 }
