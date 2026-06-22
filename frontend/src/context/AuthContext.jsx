@@ -20,14 +20,17 @@ export const AuthProvider = ({ children }) => {
 
   // Initialize auth (silent refresh on load)
   const initializeAuth = async () => {
+    const savedUser = localStorage.getItem('user');
+    if (!savedUser) {
+      setLoading(false);
+      return;
+    }
+
     try {
       const res = await API.post('/auth/refresh');
       if (res.data.success && res.data.accessToken) {
         setAccessToken(res.data.accessToken);
-        const savedUser = localStorage.getItem('user');
-        if (savedUser) {
-          setUser(JSON.parse(savedUser));
-        }
+        setUser(JSON.parse(savedUser));
       } else {
         logoutUserLocal();
       }
@@ -35,10 +38,7 @@ export const AuthProvider = ({ children }) => {
       // If it's a network/offline error, do NOT force log out. Load cached session if it exists
       const isNetworkError = !err.response;
       if (isNetworkError) {
-        const savedUser = localStorage.getItem('user');
-        if (savedUser) {
-          setUser(JSON.parse(savedUser));
-        }
+        setUser(JSON.parse(savedUser));
       } else {
         logoutUserLocal();
       }
